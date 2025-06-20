@@ -1,235 +1,142 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
   CardHeader,
   CardBody,
-  IconButton,
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Avatar,
-  Tooltip,
-  Progress,
+  Spinner,
 } from "@material-tailwind/react";
 import { StatisticsCard } from "@/widgets/cards";
-import { StatisticsChart } from "@/widgets/charts";
 import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
-} from "@/data";
+  BuildingOffice2Icon,
+  ChartBarIcon,
+  ChartPieIcon,
+  ChartBarSquareIcon,
+  BeakerIcon,
+} from "@heroicons/react/24/solid";
+
+// Indicador único: Total de Empresas Cadastradas
+const initialCards = [
+  {
+    color: "gray",
+    icon: BuildingOffice2Icon,
+    title: "Total de Empresas Cadastradas",
+    value: "0",
+    footer: {
+      color: "text-green-500",
+      value: "0",
+      label: "empresas",
+    },
+  },
+];
+
+const statisticsChartsData = [
+  {
+    color: "blue",
+    icon: ChartBarIcon,
+    title: "Processos por Empresa (Top 10)",
+    description: "Gráfico de barras mostrando as empresas com maior número de processos.",
+    footer: "Top 10 empresas com mais processos.",
+  },
+  {
+    color: "green",
+    icon: ChartPieIcon,
+    title: "Distribuição de Processos por Situação",
+    description: "Gráfico de pizza ou barras mostrando status: ativo, vencido, suspenso.",
+    footer: "Distribuição por situação dos processos.",
+  },
+  {
+    color: "purple",
+    icon: ChartBarSquareIcon,
+    title: "Evolução Mensal de Processos Cadastrados",
+    description: "Gráfico de linha mostrando o número de processos cadastrados por mês.",
+    footer: "Evolução mensal dos cadastros.",
+  },
+  {
+    color: "orange",
+    icon: BeakerIcon,
+    title: "Produtos por Princípio Ativo (Top 10)",
+    description: "Gráfico de barras com os princípios ativos mais frequentes.",
+    footer: "Top 10 princípios ativos.",
+  },
+];
 
 export function Home() {
-  return (
-      <div className="mt-12">
-        <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-          {statisticsCardsData.map(({ icon, title, footer, ...rest }) => (
-              <StatisticsCard
-                  key={title}
-                  {...rest}
-                  title={title}
-                  footer={
-                    <Typography className="font-normal text-blue-gray-600">
-                      <strong className={footer.color}>{footer.value}</strong>
-                      &nbsp;{footer.label}
-                    </Typography>
-                  }
-              />
-          ))}
-        </div>
-        <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-2 xl:grid-cols-3">
-          {statisticsChartsData.map((props) => (
-              <StatisticsChart
-                  key={props.title}
-                  {...props}
-                  footer={
-                    <Typography
-                        variant="small"
-                        className="flex items-center font-normal text-blue-gray-600"
-                    >
-                      &nbsp;{props.footer}
-                    </Typography>
-                  }
-              />
-          ))}
-        </div>
-        <div className="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <Card className="overflow-hidden xl:col-span-2 border border-blue-gray-100 shadow-sm">
-            <CardHeader
-                floated={false}
-                shadow={false}
-                color="transparent"
-                className="m-0 flex items-center justify-between p-6"
-            >
-              <div>
-                <Typography variant="h6" color="blue-gray" className="mb-1">
-                  Título 1
-                </Typography>
-                <Typography
-                    variant="small"
-                    className="flex items-center gap-1 font-normal text-blue-gray-600"
-                >
-                  <strong>Valor</strong> informação
-                </Typography>
-              </div>
-              <Menu placement="left-start">
-                <MenuHandler>
-                  <IconButton size="sm" variant="text" color="blue-gray">
-                  </IconButton>
-                </MenuHandler>
-                <MenuList>
-                  <MenuItem>Item 1</MenuItem>
-                  <MenuItem>Item 2</MenuItem>
-                  <MenuItem>Item 3</MenuItem>
-                </MenuList>
-              </Menu>
-            </CardHeader>
-            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-              <table className="w-full min-w-[640px] table-auto">
-                <thead>
-                <tr>
-                  {["Informação 1", "Informação 2", "Informação 3", "Informação 4"].map(
-                      (el) => (
-                          <th
-                              key={el}
-                              className="border-b border-blue-gray-50 py-3 px-6 text-left"
-                          >
-                            <Typography
-                                variant="small"
-                                className="text-[11px] font-medium uppercase text-blue-gray-400"
-                            >
-                              {el}
-                            </Typography>
-                          </th>
-                      )
-                  )}
-                </tr>
-                </thead>
-                <tbody>
-                {projectsTableData.map(
-                    ({ img, name, members, budget, completion }, key) => {
-                      const className = `py-3 px-5 ${
-                          key === projectsTableData.length - 1
-                              ? ""
-                              : "border-b border-blue-gray-50"
-                      }`;
+  const [cards, setCards] = useState(initialCards);
+  const [loading, setLoading] = useState(true);
 
-                      return (
-                          <tr key={name}>
-                            <td className={className}>
-                              <div className="flex items-center gap-4">
-                                <Avatar src={img} alt={name} size="sm" />
-                                <Typography
-                                    variant="small"
-                                    color="blue-gray"
-                                    className="font-bold"
-                                >
-                                  {name}
-                                </Typography>
-                              </div>
-                            </td>
-                            <td className={className}>
-                              {members.map(({ img, name }, key) => (
-                                  <Tooltip key={name} content={name}>
-                                    <Avatar
-                                        src={img}
-                                        alt={name}
-                                        size="xs"
-                                        variant="circular"
-                                        className={`cursor-pointer border-2 border-white ${
-                                            key === 0 ? "" : "-ml-2.5"
-                                        }`}
-                                    />
-                                  </Tooltip>
-                              ))}
-                            </td>
-                            <td className={className}>
-                              <Typography
-                                  variant="small"
-                                  className="text-xs font-medium text-blue-gray-600"
-                              >
-                                {budget}
-                              </Typography>
-                            </td>
-                            <td className={className}>
-                              <div className="w-10/12">
-                                <Typography
-                                    variant="small"
-                                    className="mb-1 block text-xs font-medium text-blue-gray-600"
-                                >
-                                  {completion}%
-                                </Typography>
-                                <Progress
-                                    value={completion}
-                                    variant="gradient"
-                                    color={completion === 100 ? "green" : "blue"}
-                                    className="h-1"
-                                />
-                              </div>
-                            </td>
-                          </tr>
-                      );
-                    }
-                )}
-                </tbody>
-              </table>
-            </CardBody>
-          </Card>
-          <Card className="border border-blue-gray-100 shadow-sm">
-            <CardHeader
-                floated={false}
-                shadow={false}
-                color="transparent"
-                className="m-0 p-6"
-            >
-              <Typography variant="h6" color="blue-gray" className="mb-2">
-                Título 2
-              </Typography>
-              <Typography
-                  variant="small"
-                  className="flex items-center gap-1 font-normal text-blue-gray-600"
-              >
-                <strong>Valor</strong> informação
-              </Typography>
-            </CardHeader>
-            <CardBody className="pt-0">
-              {ordersOverviewData.map(
-                  ({ title, description }, key) => (
-                      <div key={title} className="flex items-start gap-4 py-3">
-                        <div
-                            className={`relative p-1 after:absolute after:-bottom-6 after:left-2/4 after:w-0.5 after:-translate-x-2/4 after:bg-blue-gray-50 after:content-[''] ${
-                                key === ordersOverviewData.length - 1
-                                    ? "after:h-0"
-                                    : "after:h-4/6"
-                            }`}
-                        >
-                        </div>
-                        <div>
-                          <Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="block font-medium"
-                          >
-                            {title}
-                          </Typography>
-                          <Typography
-                              as="span"
-                              variant="small"
-                              className="text-xs font-medium text-blue-gray-500"
-                          >
-                            {description}
-                          </Typography>
-                        </div>
-                      </div>
-                  )
-              )}
-            </CardBody>
-          </Card>
-        </div>
+  useEffect(() => {
+    async function fetchEmpresas() {
+      setLoading(true);
+      try {
+        const empresasRes = await fetch("https://medicine-consumer.onrender.com/getEmpresas");
+        const empresas = await empresasRes.json();
+        setCards([
+          {
+            ...initialCards[0],
+            value: empresas.length,
+            footer: {
+              ...initialCards[0].footer,
+              value: empresas.length,
+            },
+          },
+        ]);
+      } catch {
+        setCards(initialCards);
+      }
+      setLoading(false);
+    }
+    fetchEmpresas();
+  }, []);
+
+  return (
+    <div className="mt-12">
+      <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
+        {loading ? (
+          <div className="col-span-4 flex justify-center items-center h-32">
+            <Spinner color="blue" />
+          </div>
+        ) : (
+          cards.map(({ icon: Icon, title, footer, ...rest }) => (
+            <StatisticsCard
+              key={title}
+              {...rest}
+              icon={<Icon />}
+              title={title}
+              footer={
+                <Typography className="font-normal text-blue-gray-600">
+                  <strong className={footer.color}>{footer.value}</strong>
+                  &nbsp;{footer.label}
+                </Typography>
+              }
+            />
+          ))
+        )}
       </div>
+      <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
+        {statisticsChartsData.map(({ icon: Icon, title, description, footer, color }) => (
+          <Card key={title} className="p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <div className={`rounded-full p-2 bg-${color}-100`}>
+                <Icon className={`h-6 w-6 text-${color}-700`} />
+              </div>
+              <Typography variant="h6" color="blue-gray">
+                {title}
+              </Typography>
+            </div>
+            <Typography variant="small" color="gray" className="mb-2">
+              {description}
+            </Typography>
+            <Typography
+              variant="small"
+              className="flex items-center font-normal text-blue-gray-600"
+            >
+              &nbsp;{footer}
+            </Typography>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
 

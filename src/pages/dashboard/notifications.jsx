@@ -33,7 +33,7 @@ export function Notifications() {
               className="m-0 p-4"
           >
             <Typography variant="h5" color="blue-gray">
-              Alertas
+              Notificaçoes
             </Typography>
           </CardHeader>
           <CardBody className="flex flex-col gap-4 p-4">
@@ -44,8 +44,8 @@ export function Notifications() {
                     color={color}
                     onClose={() => setShowAlerts((current) => ({ ...current, [color]: false }))}
                 >
-                  Um alerta simples {color} com um <a href="#">link de exemplo</a>.
-                  Clique nele se desejar.
+                  Notificação
+                 
                 </Alert>
             ))}
           </CardBody>
@@ -58,7 +58,7 @@ export function Notifications() {
               className="m-0 p-4"
           >
             <Typography variant="h5" color="blue-gray">
-              Alertas com Ícone
+              Notificações
             </Typography>
           </CardHeader>
           <CardBody className="flex flex-col gap-4 p-4">
@@ -75,8 +75,8 @@ export function Notifications() {
                       [color]: false,
                     }))}
                 >
-                  Um alerta simples {color} com um <a href="#">link de exemplo</a>.
-                  Clique nele se desejar.
+                  Notificação
+                  
                 </Alert>
             ))}
           </CardBody>
