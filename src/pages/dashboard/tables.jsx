@@ -12,9 +12,8 @@ import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
-// Componente para exibir a tabela de processos
 function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
-  // Função para exportar CSV
+
   const exportarCSV = () => {
     if (!processos.length) return;
     const header = [
@@ -98,7 +97,6 @@ function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
   );
 }
 
-// NOVO COMPONENTE: Detalhes do Processo/Produto
 function DetalhesProcesso({ processo, onVoltar }) {
   const [apresentacoes, setApresentacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -226,14 +224,13 @@ export default function FiltroProcessos() {
   const [empresasSelecionadas, setEmpresasSelecionadas] = useState([]);
   const [cnpjInput, setCnpjInput] = useState("");
   const [cnpjsSelecionados, setCnpjsSelecionados] = useState([]);
-  const [tela, setTela] = useState("filtro"); // "filtro" | "tabela" | "detalhes"
+  const [tela, setTela] = useState("filtro"); 
   const [processos, setProcessos] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [processoSelecionado, setProcessoSelecionado] = useState(null);
 
   const navigate = useNavigate();
 
-  // Buscar empresas na API
   useEffect(() => {
     fetch("https://medicine-consumer.onrender.com/getEmpresas")
       .then((res) => res.json())
@@ -247,7 +244,6 @@ export default function FiltroProcessos() {
       .catch((err) => console.error(err));
   }, []);
 
-  // Filtrar empresas enquanto digita
   useEffect(() => {
     if (buscaEmpresa.length === 0) {
       setEmpresasFiltradas([]);
@@ -258,8 +254,7 @@ export default function FiltroProcessos() {
       setEmpresasFiltradas(filtradas);
     }
   }, [buscaEmpresa, empresas]);
-
-  // Adicionar Empresa
+a
   const handleAddEmpresa = (nome) => {
     if (
       nome.trim() !== "" &&
@@ -272,12 +267,10 @@ export default function FiltroProcessos() {
     setEmpresasFiltradas([]);
   };
 
-  // Remover Empresa
   const handleRemoveEmpresa = (nome) => {
     setEmpresasSelecionadas((prev) => prev.filter((e) => e !== nome));
   };
 
-  // Adicionar CNPJ
   const handleAddCnpj = () => {
     const regexCnpj = /^\d{14}$/;
     if (!regexCnpj.test(cnpjInput)) {
@@ -290,12 +283,10 @@ export default function FiltroProcessos() {
     setCnpjInput("");
   };
 
-  // Remover CNPJ
   const handleRemoveCnpj = (cnpj) => {
     setCnpjsSelecionados((prev) => prev.filter((c) => String(c) !== String(cnpj)));
   };
 
-  // Consultar e mostrar tabela
   const handleConsultar = async () => {
     if (empresasSelecionadas.length === 0 && cnpjsSelecionados.length === 0) {
       alert("Selecione ao menos uma empresa ou insira um CNPJ para consultar.");
@@ -303,18 +294,17 @@ export default function FiltroProcessos() {
     }
     setCarregando(true);
     let resultados = [];
-    // Buscar por CNPJ
     for (const cnpj of cnpjsSelecionados) {
       try {
         const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}/processos`);
         const data = await res.json();
         data.forEach(d => {
-          d.empresa_nome = "-"; // Não temos o nome da empresa pelo CNPJ
+          d.empresa_nome = "-"; 
         });
         resultados = resultados.concat(data);
       } catch (e) {}
     }
-    // Buscar por nome da empresa
+
     for (const nome of empresasSelecionadas) {
       try {
         const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${encodeURIComponent(nome)}/processosPorNome`);
@@ -328,13 +318,11 @@ export default function FiltroProcessos() {
     setTela("tabela");
   };
 
-  // Quando clicar em uma linha da tabela
   const handleDetalhes = (proc) => {
     setProcessoSelecionado(proc);
     setTela("detalhes");
   };
 
-  // Voltar para tela de filtro
   const handleVoltar = () => {
     if (tela === "detalhes") {
       setTela("tabela");
@@ -359,7 +347,6 @@ export default function FiltroProcessos() {
     );
   }
 
-  // Tela de filtro (original)
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -370,7 +357,7 @@ export default function FiltroProcessos() {
         </CardHeader>
         <CardBody className="px-6 pb-6 pt-0">
           <div className="flex flex-col gap-6">
-            {/* Filtro por Empresa */}
+    
             <div>
               <Typography variant="h6" color="blue-gray" className="mb-2">
                 Filtrar por Empresa
@@ -416,7 +403,7 @@ export default function FiltroProcessos() {
               </div>
             </div>
 
-            {/* Filtro por CNPJ */}
+  
             <div>
               <Typography variant="h6" color="blue-gray" className="mb-2">
                 Filtrar por CNPJ
@@ -443,7 +430,7 @@ export default function FiltroProcessos() {
               </div>
             </div>
 
-            {/* Botão Consultar */}
+      
             <div className="flex justify-end">
               <Button
                 onClick={handleConsultar}

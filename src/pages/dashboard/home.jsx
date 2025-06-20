@@ -15,7 +15,6 @@ import {
   BeakerIcon,
 } from "@heroicons/react/24/solid";
 
-// Indicador único: Total de Empresas Cadastradas
 const initialCards = [
   {
     color: "gray",
