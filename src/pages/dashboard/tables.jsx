@@ -97,6 +97,12 @@ function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
   );
 }
 
+function safeValue(val) {
+  if (val === undefined || val === null) return "-";
+  if (typeof val === "string" && val.trim() === "") return "-";
+  return val;
+}
+
 function DetalhesProcesso({ processo, onVoltar }) {
   const [apresentacoes, setApresentacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -123,8 +129,7 @@ function DetalhesProcesso({ processo, onVoltar }) {
       "Número do Processo",
       "Genérico",
       "Expiração",
-      "Número do Processo",
-      "Número de Registro",
+      "Número do Registro",
       "Validade",
       "Apresentação do Produto"
     ];
@@ -136,7 +141,6 @@ function DetalhesProcesso({ processo, onVoltar }) {
       processo.n_processo || "-",
       processo.e_generico ? "Sim" : "Não",
       processo.data_expiracao || "-",
-      processo.n_processo || "-",
       apres.n_registro || "-",
       apres.validade || "-",
       apres.apresentacao || "-"
@@ -152,6 +156,7 @@ function DetalhesProcesso({ processo, onVoltar }) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+
   };
 
   return (
@@ -171,45 +176,65 @@ function DetalhesProcesso({ processo, onVoltar }) {
             <div className="flex justify-center items-center h-40">
               <Spinner color="blue" />
             </div>
-          ) : apresentacoes.length ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-max text-left">
-                <thead>
-                  <tr>
-                    <th className="p-2 border-b">Nome do Produto</th>
-                    <th className="p-2 border-b">Princípio Ativo</th>
-                    <th className="p-2 border-b">Empresa</th>
-                    <th className="p-2 border-b">CNPJ</th>
-                    <th className="p-2 border-b">Número do Processo</th>
-                    <th className="p-2 border-b">Genérico</th>
-                    <th className="p-2 border-b">Expiração</th>
-                    <th className="p-2 border-b">Número do Processo</th>
-                    <th className="p-2 border-b">Número de Registro</th>
-                    <th className="p-2 border-b">Validade</th>
-                    <th className="p-2 border-b">Apresentação do Produto</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {apresentacoes.map((apres, idx) => (
-                    <tr key={apres.id || idx}>
-                      <td className="p-2 border-b">{processo.nome_comercial || "-"}</td>
-                      <td className="p-2 border-b">{processo.principio_ativo || "-"}</td>
+          ) : (
+            <>
+              {/* Tabela 1: Dados principais do processo/produto */}
+              <div className="overflow-x-auto mb-8">
+                <table className="min-w-max text-left border">
+                  <thead>
+                    <tr>
+                      <th className="p-2 border-b">Empresa</th>
+                      <th className="p-2 border-b">CNPJ</th>
+                      <th className="p-2 border-b">Nome do Produto</th>
+                      <th className="p-2 border-b">Número do Processo</th>
+                      <th className="p-2 border-b">Princípio Ativo</th>
+                      <th className="p-2 border-b">Genérico</th>
+                      <th className="p-2 border-b">Expiração</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
                       <td className="p-2 border-b">{processo.empresa_nome || "-"}</td>
                       <td className="p-2 border-b">{processo.empresa_cnpj || "-"}</td>
+                      <td className="p-2 border-b">{processo.nome_comercial || "-"}</td>
                       <td className="p-2 border-b">{processo.n_processo || "-"}</td>
+                      <td className="p-2 border-b">{processo.principio_ativo || "-"}</td>
                       <td className="p-2 border-b">{processo.e_generico ? "Sim" : "Não"}</td>
                       <td className="p-2 border-b">{processo.data_expiracao || "-"}</td>
-                      <td className="p-2 border-b">{processo.n_processo || "-"}</td>
-                      <td className="p-2 border-b">{apres.n_registro || "-"}</td>
-                      <td className="p-2 border-b">{apres.validade || "-"}</td>
-                      <td className="p-2 border-b">{apres.apresentacao || "-"}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <Typography color="gray" className="mt-4">Não foi possível carregar os detalhes.</Typography>
+                  </tbody>
+                </table>
+              </div>
+              {/* Tabela 2: Apresentações */}
+              <div className="overflow-x-auto">
+                <table className="min-w-max text-left border">
+                  <thead>
+                    <tr>
+                      <th className="p-2 border-b">Número do Registro</th>
+                      <th className="p-2 border-b">Validade</th>
+                      <th className="p-2 border-b">Apresentação do produto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apresentacoes.length > 0 ? (
+                      apresentacoes.map((apres, idx) => (
+                        <tr key={apres.id || idx}>
+                          <td className="p-2 border-b">{safeValue(apres.n_registro)}</td>
+                          <td className="p-2 border-b">{safeValue(apres.validade)}</td>
+                          <td className="p-2 border-b">{safeValue(apres.apresentacao)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="p-2 border-b text-center text-gray-500">
+                          Não há apresentações cadastradas.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </CardBody>
       </Card>
