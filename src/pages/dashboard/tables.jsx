@@ -254,7 +254,7 @@ export default function FiltroProcessos() {
       setEmpresasFiltradas(filtradas);
     }
   }, [buscaEmpresa, empresas]);
-a
+
   const handleAddEmpresa = (nome) => {
     if (
       nome.trim() !== "" &&
