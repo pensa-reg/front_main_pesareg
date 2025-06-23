@@ -287,36 +287,47 @@ export default function FiltroProcessos() {
     setCnpjsSelecionados((prev) => prev.filter((c) => String(c) !== String(cnpj)));
   };
 
-  const handleConsultar = async () => {
-    if (empresasSelecionadas.length === 0 && cnpjsSelecionados.length === 0) {
-      alert("Selecione ao menos uma empresa ou insira um CNPJ para consultar.");
-      return;
-    }
-    setCarregando(true);
-    let resultados = [];
-    for (const cnpj of cnpjsSelecionados) {
-      try {
-        const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}/processos`);
-        const data = await res.json();
-        data.forEach(d => {
-          d.empresa_nome = "-"; 
-        });
-        resultados = resultados.concat(data);
-      } catch (e) {}
-    }
+const handleConsultar = async () => {
+  if (empresasSelecionadas.length === 0 && cnpjsSelecionados.length === 0) {
+    alert("Selecione ao menos uma empresa ou insira um CNPJ para consultar.");
+    return;
+  }
+  setCarregando(true);
+  let resultados = [];
+  for (const cnpj of cnpjsSelecionados) {
+    try {
+      const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}/processos`);
+      const data = await res.json();
 
-    for (const nome of empresasSelecionadas) {
+      // Buscar nome da empresa pelo CNPJ
+      let nomeEmpresa = "-";
       try {
-        const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${encodeURIComponent(nome)}/processosPorNome`);
-        const data = await res.json();
-        data.forEach(d => d.empresa_nome = nome);
-        resultados = resultados.concat(data);
+        const empresaRes = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}`);
+        const empresaData = await empresaRes.json();
+        if (Array.isArray(empresaData) && empresaData.length > 0 && empresaData[0].nome) {
+          nomeEmpresa = empresaData[0].nome;
+        }
       } catch (e) {}
-    }
-    setProcessos(resultados);
-    setCarregando(false);
-    setTela("tabela");
-  };
+
+      data.forEach(d => {
+        d.empresa_nome = nomeEmpresa;
+      });
+      resultados = resultados.concat(data);
+    } catch (e) {}
+  }
+
+  for (const nome of empresasSelecionadas) {
+    try {
+      const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${encodeURIComponent(nome)}/processosPorNome`);
+      const data = await res.json();
+      data.forEach(d => d.empresa_nome = nome);
+      resultados = resultados.concat(data);
+    } catch (e) {}
+  }
+  setProcessos(resultados);
+  setCarregando(false);
+  setTela("tabela");
+};
 
   const handleDetalhes = (proc) => {
     setProcessoSelecionado(proc);
