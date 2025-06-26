@@ -12,8 +12,14 @@ import { useEffect, useState } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 
-function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
+// Utilitário para valores seguros
+function safeValue(val) {
+  if (val === undefined || val === null) return "-";
+  if (typeof val === "string" && val.trim() === "") return "-";
+  return val;
+}
 
+function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
   const exportarCSV = () => {
     if (!processos.length) return;
     const header = [
@@ -25,12 +31,12 @@ function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
       "Data da Expiração"
     ];
     const rows = processos.map(proc => [
-      `"${proc.nome_comercial || "-"}"`,
-      `"${proc.empresa_nome || "-"}"`,
-      `"${proc.empresa_cnpj || "-"}"`,
-      `"${proc.principio_ativo || "-"}"`,
-      `"${proc.n_processo || "-"}"`,
-      `"${proc.data_expiracao || "-"}"`
+      `"${safeValue(proc.nome_comercial)}"`,
+      `"${safeValue(proc.empresa_nome)}"`,
+      `"${safeValue(proc.empresa_cnpj)}"`,
+      `"${safeValue(proc.principio_ativo)}"`,
+      `"${safeValue(proc.n_processo)}"`,
+      `"${safeValue(proc.data_expiracao)}"`
     ]);
     const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -77,12 +83,12 @@ function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
                     className="hover:bg-blue-50 cursor-pointer"
                     onClick={() => onDetalhes(proc)}
                   >
-                    <td className="p-2 border-b">{proc.nome_comercial || "-"}</td>
-                    <td className="p-2 border-b">{proc.empresa_nome || "-"}</td>
-                    <td className="p-2 border-b">{proc.empresa_cnpj}</td>
-                    <td className="p-2 border-b">{proc.principio_ativo}</td>
-                    <td className="p-2 border-b">{proc.n_processo}</td>
-                    <td className="p-2 border-b">{proc.data_expiracao}</td>
+                    <td className="p-2 border-b">{safeValue(proc.nome_comercial)}</td>
+                    <td className="p-2 border-b">{safeValue(proc.empresa_nome)}</td>
+                    <td className="p-2 border-b">{safeValue(proc.empresa_cnpj)}</td>
+                    <td className="p-2 border-b">{safeValue(proc.principio_ativo)}</td>
+                    <td className="p-2 border-b">{safeValue(proc.n_processo)}</td>
+                    <td className="p-2 border-b">{safeValue(proc.data_expiracao)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -95,12 +101,6 @@ function TabelaProcessos({ processos, onVoltar, onDetalhes }) {
       </Card>
     </div>
   );
-}
-
-function safeValue(val) {
-  if (val === undefined || val === null) return "-";
-  if (typeof val === "string" && val.trim() === "") return "-";
-  return val;
 }
 
 function DetalhesProcesso({ processo, onVoltar }) {
@@ -134,16 +134,16 @@ function DetalhesProcesso({ processo, onVoltar }) {
       "Apresentação do Produto"
     ];
     const rows = apresentacoes.map(apres => [
-      processo.nome_comercial || "-",
-      processo.principio_ativo || "-",
-      processo.empresa_nome || "-",
-      processo.empresa_cnpj || "-",
-      processo.n_processo || "-",
+      safeValue(processo.nome_comercial),
+      safeValue(processo.principio_ativo),
+      safeValue(processo.empresa_nome),
+      safeValue(processo.empresa_cnpj),
+      safeValue(processo.n_processo),
       processo.e_generico ? "Sim" : "Não",
-      processo.data_expiracao || "-",
-      apres.n_registro || "-",
-      apres.validade || "-",
-      apres.apresentacao || "-"
+      safeValue(processo.data_expiracao),
+      safeValue(apres.n_registro),
+      safeValue(apres.validade),
+      safeValue(apres.apresentacao)
     ]);
     const csvContent = [header, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -156,7 +156,6 @@ function DetalhesProcesso({ processo, onVoltar }) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
   };
 
   return (
@@ -194,13 +193,13 @@ function DetalhesProcesso({ processo, onVoltar }) {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="p-2 border-b">{processo.empresa_nome || "-"}</td>
-                      <td className="p-2 border-b">{processo.empresa_cnpj || "-"}</td>
-                      <td className="p-2 border-b">{processo.nome_comercial || "-"}</td>
-                      <td className="p-2 border-b">{processo.n_processo || "-"}</td>
-                      <td className="p-2 border-b">{processo.principio_ativo || "-"}</td>
+                      <td className="p-2 border-b">{safeValue(processo.empresa_nome)}</td>
+                      <td className="p-2 border-b">{safeValue(processo.empresa_cnpj)}</td>
+                      <td className="p-2 border-b">{safeValue(processo.nome_comercial)}</td>
+                      <td className="p-2 border-b">{safeValue(processo.n_processo)}</td>
+                      <td className="p-2 border-b">{safeValue(processo.principio_ativo)}</td>
                       <td className="p-2 border-b">{processo.e_generico ? "Sim" : "Não"}</td>
-                      <td className="p-2 border-b">{processo.data_expiracao || "-"}</td>
+                      <td className="p-2 border-b">{safeValue(processo.data_expiracao)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -249,13 +248,18 @@ export default function FiltroProcessos() {
   const [empresasSelecionadas, setEmpresasSelecionadas] = useState([]);
   const [cnpjInput, setCnpjInput] = useState("");
   const [cnpjsSelecionados, setCnpjsSelecionados] = useState([]);
-  const [tela, setTela] = useState("filtro"); 
+  const [principiosAtivos, setPrincipiosAtivos] = useState([]);
+  const [buscaPrincipio, setBuscaPrincipio] = useState("");
+  const [principiosFiltrados, setPrincipiosFiltrados] = useState([]);
+  const [principiosSelecionados, setPrincipiosSelecionados] = useState([]);
+  const [tela, setTela] = useState("filtro");
   const [processos, setProcessos] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [processoSelecionado, setProcessoSelecionado] = useState(null);
 
   const navigate = useNavigate();
 
+  // Carrega empresas
   useEffect(() => {
     fetch("https://medicine-consumer.onrender.com/getEmpresas")
       .then((res) => res.json())
@@ -269,6 +273,15 @@ export default function FiltroProcessos() {
       .catch((err) => console.error(err));
   }, []);
 
+  // Carrega princípios ativos
+  useEffect(() => {
+    fetch("https://medicine-consumer.onrender.com/getPrincipioAtivo")
+      .then(res => res.json())
+      .then(data => setPrincipiosAtivos(data.filter(p => p && p.trim() !== "")))
+      .catch(() => setPrincipiosAtivos([]));
+  }, []);
+
+  // Filtro autocomplete empresas
   useEffect(() => {
     if (buscaEmpresa.length === 0) {
       setEmpresasFiltradas([]);
@@ -279,6 +292,18 @@ export default function FiltroProcessos() {
       setEmpresasFiltradas(filtradas);
     }
   }, [buscaEmpresa, empresas]);
+
+  // Filtro autocomplete princípios ativos
+  useEffect(() => {
+    if (buscaPrincipio.length === 0) {
+      setPrincipiosFiltrados([]);
+    } else {
+      const filtrados = principiosAtivos.filter((p) =>
+        p.toLowerCase().includes(buscaPrincipio.toLowerCase())
+      );
+      setPrincipiosFiltrados(filtrados);
+    }
+  }, [buscaPrincipio, principiosAtivos]);
 
   const handleAddEmpresa = (nome) => {
     if (
@@ -312,47 +337,104 @@ export default function FiltroProcessos() {
     setCnpjsSelecionados((prev) => prev.filter((c) => String(c) !== String(cnpj)));
   };
 
-const handleConsultar = async () => {
-  if (empresasSelecionadas.length === 0 && cnpjsSelecionados.length === 0) {
-    alert("Selecione ao menos uma empresa ou insira um CNPJ para consultar.");
-    return;
-  }
-  setCarregando(true);
-  let resultados = [];
-  for (const cnpj of cnpjsSelecionados) {
-    try {
-      const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}/processos`);
-      const data = await res.json();
+  const handleAddPrincipio = (nome) => {
+    if (
+      nome.trim() !== "" &&
+      principiosAtivos.includes(nome) &&
+      !principiosSelecionados.includes(nome)
+    ) {
+      setPrincipiosSelecionados((prev) => [...prev, nome]);
+    }
+    setBuscaPrincipio("");
+    setPrincipiosFiltrados([]);
+  };
 
-      // Buscar nome da empresa pelo CNPJ
-      let nomeEmpresa = "-";
+  const handleRemovePrincipio = (nome) => {
+    setPrincipiosSelecionados((prev) => prev.filter((p) => p !== nome));
+  };
+
+  const handleConsultar = async () => {
+    // Prioridade: princípio ativo > empresa/cnpj
+    if (
+      principiosSelecionados.length === 0 &&
+      empresasSelecionadas.length === 0 &&
+      cnpjsSelecionados.length === 0
+    ) {
+      alert("Selecione ao menos uma empresa, CNPJ ou princípio ativo para consultar.");
+      return;
+    }
+    setCarregando(true);
+
+    // Consulta por princípios ativos (pode ser múltiplo)
+    if (principiosSelecionados.length > 0) {
       try {
-        const empresaRes = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}`);
-        const empresaData = await empresaRes.json();
-        if (Array.isArray(empresaData) && empresaData.length > 0 && empresaData[0].nome) {
-          nomeEmpresa = empresaData[0].nome;
+        let todosProcessos = [];
+        for (const principio of principiosSelecionados) {
+          const res = await fetch(
+            `https://medicine-consumer.onrender.com/getProcessosPorPrincipioAtivo/${encodeURIComponent(principio)}`
+          );
+          const data = await res.json();
+          // Buscar nome da empresa pelo CNPJ
+          for (const proc of data) {
+            let nomeEmpresa = "-";
+            try {
+              const empresaRes = await fetch(`https://medicine-consumer.onrender.com/empresa/${proc.empresa_cnpj}`);
+              const empresaData = await empresaRes.json();
+              if (Array.isArray(empresaData) && empresaData.length > 0 && empresaData[0].nome) {
+                nomeEmpresa = empresaData[0].nome;
+              }
+            } catch (e) {}
+            proc.empresa_nome = nomeEmpresa;
+          }
+          todosProcessos = todosProcessos.concat(data);
         }
+        setProcessos(todosProcessos);
+        setCarregando(false);
+        setTela("tabela");
+        return;
+      } catch (e) {
+        setCarregando(false);
+        alert("Erro ao buscar processos por princípio ativo.");
+        return;
+      }
+    }
+
+    // Consulta por CNPJ e Empresa
+    let resultados = [];
+    for (const cnpj of cnpjsSelecionados) {
+      try {
+        const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}/processos`);
+        const data = await res.json();
+
+        // Buscar nome da empresa pelo CNPJ
+        let nomeEmpresa = "-";
+        try {
+          const empresaRes = await fetch(`https://medicine-consumer.onrender.com/empresa/${cnpj}`);
+          const empresaData = await empresaRes.json();
+          if (Array.isArray(empresaData) && empresaData.length > 0 && empresaData[0].nome) {
+            nomeEmpresa = empresaData[0].nome;
+          }
+        } catch (e) {}
+
+        data.forEach(d => {
+          d.empresa_nome = nomeEmpresa;
+        });
+        resultados = resultados.concat(data);
       } catch (e) {}
+    }
 
-      data.forEach(d => {
-        d.empresa_nome = nomeEmpresa;
-      });
-      resultados = resultados.concat(data);
-    } catch (e) {}
-  }
-
-  for (const nome of empresasSelecionadas) {
-    try {
-      const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${encodeURIComponent(nome)}/processosPorNome`);
-      const data = await res.json();
-      data.forEach(d => d.empresa_nome = nome);
-      resultados = resultados.concat(data);
-    } catch (e) {}
-  }
-  setProcessos(resultados);
-  setCarregando(false);
-  setTela("tabela");
-};
+    for (const nome of empresasSelecionadas) {
+      try {
+        const res = await fetch(`https://medicine-consumer.onrender.com/empresa/${encodeURIComponent(nome)}/processosPorNome`);
+        const data = await res.json();
+        data.forEach(d => d.empresa_nome = nome);
+        resultados = resultados.concat(data);
+      } catch (e) {}
+    }
+    setProcessos(resultados);
+    setCarregando(false);
+    setTela("tabela");
+  };
 
   const handleDetalhes = (proc) => {
     setProcessoSelecionado(proc);
@@ -388,12 +470,13 @@ const handleConsultar = async () => {
       <Card>
         <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
           <Typography variant="h6" color="white">
-            Consulta de Processos - Empresas e CNPJ
+            Consulta de Processos - Empresas, CNPJ e Princípio Ativo
           </Typography>
         </CardHeader>
         <CardBody className="px-6 pb-6 pt-0">
           <div className="flex flex-col gap-6">
-    
+
+            {/* Filtro por Empresa */}
             <div>
               <Typography variant="h6" color="blue-gray" className="mb-2">
                 Filtrar por Empresa
@@ -439,7 +522,7 @@ const handleConsultar = async () => {
               </div>
             </div>
 
-  
+            {/* Filtro por CNPJ */}
             <div>
               <Typography variant="h6" color="blue-gray" className="mb-2">
                 Filtrar por CNPJ
@@ -466,7 +549,51 @@ const handleConsultar = async () => {
               </div>
             </div>
 
-      
+            {/* Filtro por Princípio Ativo */}
+            <div>
+              <Typography variant="h6" color="blue-gray" className="mb-2">
+                Filtrar por Princípio Ativo
+              </Typography>
+              <div className="flex gap-2 relative">
+                <div className="relative w-full">
+                  <Input
+                    label="Digite o princípio ativo"
+                    value={buscaPrincipio}
+                    onChange={(e) => setBuscaPrincipio(e.target.value)}
+                  />
+                  {principiosFiltrados.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full rounded-md bg-white shadow-lg max-h-60 overflow-auto">
+                      {principiosFiltrados.map((p, idx) => (
+                        <div
+                          key={idx}
+                          className="cursor-pointer px-4 py-2 hover:bg-blue-100"
+                          onClick={() => handleAddPrincipio(p)}
+                        >
+                          {p}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <Button
+                  onClick={() => handleAddPrincipio(buscaPrincipio)}
+                  color="blue"
+                >
+                  Adicionar
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {principiosSelecionados.map((nome) => (
+                  <Chip
+                    key={nome}
+                    value={nome}
+                    onClose={() => handleRemovePrincipio(nome)}
+                    className="bg-purple-100 text-purple-800"
+                  />
+                ))}
+              </div>
+            </div>
+
             <div className="flex justify-end">
               <Button
                 onClick={handleConsultar}
